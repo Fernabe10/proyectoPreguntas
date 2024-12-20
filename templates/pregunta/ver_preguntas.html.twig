@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lista de Preguntas{% endblock %}
+
+{% block body %}
+<style>
+    .table-container { margin: 2rem auto; max-width: 90%; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f4f4f4; }
+</style>
+
+<div class="table-container">
+    <h1>Lista de Preguntas</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Fecha de Inicio</th>
+                <th>Fecha de Fin</th>
+                <th>Activo</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pregunta in preguntas %}
+                <tr>
+                    <td>{{ pregunta.titulo }}</td>
+                    <td>{{ pregunta.fechaInicio|date('Y-m-d H:i') }}</td>
+                    <td>{{ pregunta.fechaFin|date('Y-m-d H:i') }}</td>
+                    <td>{{ pregunta.activo ? 'Sí' : 'No' }}</td>
+                    <td>
+                        <a href="{{ path('responder_pregunta', { id: pregunta.id }) }}" class="btn btn-primary">
+                            Responder
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">No hay preguntas disponibles.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

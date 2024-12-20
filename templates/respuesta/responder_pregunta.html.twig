@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tu pregunta{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            padding: 10px;
+            border-radius: 10px;
+            background-color: white;
+            margin: 1em auto;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+        #botonEnviar {
+            padding: 5px;
+        }
+        li {
+            margin-top: 10px;
+        }
+        .chart-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+
+    <div class="example-wrapper">
+        <h1>Pregunta nº: {{ pregunta.id }} {{ pregunta.titulo }}</h1>
+
+        <h2>Respuestas Disponibles:</h2>
+
+        {{ form_start(form) }}
+            <div>
+                {{ form_label(form.respuesta) }}
+                {{ form_widget(form.respuesta) }}
+                {% if form.respuesta.vars.errors|length > 0 %}
+                    <div class="error-message">
+                        {% for error in form.respuesta.vars.errors %}
+                            <p>{{ error.message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <button id="botonEnviar" type="submit">Enviar</button>
+        {{ form_end(form) }}
+
+        <div class="chart-container">
+            <h2>Gráfico de Respuestas</h2>
+            <canvas id="respuestasChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const preguntaId = {{ pregunta.id }};
+        const chartCtx = document.getElementById('respuestasChart').getContext('2d');
+        let respuestasChart;
+
+        // Función para cargar datos de la API y actualizar el gráfico
+        function loadChartData() {
+            fetch(`/pregunta/api/respuestas/${preguntaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = Object.keys(data.conteos);
+                    const values = Object.values(data.conteos);
+
+                    if (!respuestasChart) {
+                        // Crear el gráfico si no existe
+                        respuestasChart = new Chart(chartCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Número de veces seleccionada',
+                                    data: values,
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 10
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        // Actualizar el gráfico si ya existe
+                        respuestasChart.data.labels = labels;
+                        respuestasChart.data.datasets[0].data = values;
+                        respuestasChart.update();
+                    }
+                })
+                .catch(error => console.error('Error al cargar los datos del gráfico:', error));
+        }
+
+        // Cargar los datos iniciales
+        loadChartData();
+
+        // Actualizar los datos cada 5 segundos
+        setInterval(loadChartData, 5000);
+    </script>
+{% endblock %}

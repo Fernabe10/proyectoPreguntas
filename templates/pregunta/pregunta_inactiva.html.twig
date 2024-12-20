@@ -1,0 +1,13 @@
+{# templates/pregunta/pregunta_inactiva.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Pregunta No Activa{% endblock %}
+
+{% block body %}
+    <div class="container text-center mt-5">
+        <h1>La pregunta no está activa en este momento</h1>
+        <p>Inténtalo más tarde.</p>
+
+        <button><a class="enlace" href="{{ path('ver_preguntas') }}" class="btn btn-primary">Volver</a></button>
+    </div>
+{% endblock %}
